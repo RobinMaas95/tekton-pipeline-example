@@ -1,0 +1,22 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: hello-listener
+spec:
+  serviceAccountName: tekton-robot
+  triggers:
+    - name: hello-trigger
+      bindings:
+      - ref: hello-binding
+      template:
+        ref: hello-template
+      interceptors:
+      - ref:
+          name: "cel"
+          kind: ClusterInterceptor
+          apiVersion: triggers.tekton.dev
+        params:
+          - name: overlays
+            value:
+              - key: name
+                expression: "body.username.replace('_', '-').lowerAscii()"
